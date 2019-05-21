@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Redirect;
 
 class Handler extends ExceptionHandler
 {
@@ -46,6 +47,9 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if ($exception instanceof FacebookException) {
+            return Redirect::back()->withError($exception->getMessage());
+        }
         return parent::render($request, $exception);
     }
 }
