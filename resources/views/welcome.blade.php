@@ -48,6 +48,10 @@
                 font-size: 64px;
             }
 
+            .error {
+                color: #FF4136;
+            }
+
             .links > a {
                 color: #636b6f;
                 padding: 0 25px;
@@ -67,6 +71,7 @@
         <div class="flex-center position-ref full-height">
             <div class="top-right links">
                 @auth
+                    <img src="{{ Auth::user()->picture }}"/>
                     <a href="{{ $loginUrl }}">Logout</a>
                 @endauth
                 @guest
@@ -74,11 +79,15 @@
                 @endguest
             </div>
             <div class="content">
-                <div class="title m-b-md">
-                    @guest
-                    Welcome guest, please <a href="{{ $loginUrl }}">login</a> to proceed.
-                    @endguest
-                </div>
+                @auth
+                    <div class="title m-b-md">Welcome {{ Auth::user()->name }}</div>
+                @endauth
+                @guest
+                    <div class="title m-b-md">Welcome guest, please <a href="{{ $loginUrl }}">login</a> to proceed.</div>
+                @endguest
+                @if( Session::has('error'))
+                    <div class="error">{{ Session::get('error') }}</div>
+                @endif
             </div>
         </div>
     </body>
