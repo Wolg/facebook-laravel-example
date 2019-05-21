@@ -18,6 +18,7 @@ class CreateUsersTable extends Migration
             $table->string('name');
             $table->text('picture');
             $table->string('email')->unique()->index();
+            $table->string('fb_id')->unique()->index();
             $table->string('fb_token')->unique()->index();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
