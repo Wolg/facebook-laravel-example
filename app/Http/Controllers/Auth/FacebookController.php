@@ -25,6 +25,11 @@ class FacebookController extends Controller
     protected $redirectTo = '/';
 
     /**
+     * @var Facebook
+     */
+    protected $fb;
+
+    /**
      * Create a new controller instance.
      *
      * @return void
@@ -32,6 +37,7 @@ class FacebookController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+        $this->fb = resolve('Facebook\SDK');
     }
 
     /**
@@ -40,42 +46,9 @@ class FacebookController extends Controller
      */
     public function callback()
     {
-        $fb = resolve('Facebook\SDK');
-        $helper = $fb->getRedirectLoginHelper();
-
+        $accessToken = $this->getAccessToken();
         try {
-            $accessToken = $helper->getAccessToken();
-        } catch(Facebook\Exceptions\FacebookResponseException $e) {
-            throw new FacebookException();
-        } catch(Facebook\Exceptions\FacebookSDKException $e) {
-            throw new FacebookException();
-        }
-
-        if (! isset($accessToken)) {
-            throw new FacebookException();
-        }
-
-        $oAuth2Client = $fb->getOAuth2Client();
-        $tokenMetadata = $oAuth2Client->debugToken($accessToken);
-
-        try {
-            $tokenMetadata->validateAppId(config('services.facebook.id'));
-            $tokenMetadata->validateExpiration();
-        } catch(Facebook\Exceptions\FacebookSDKException $e) {
-            throw new FacebookException();
-        }
-
-        if (!$accessToken->isLongLived()) {
-            // Exchanges a short-lived access token for a long-lived one
-            try {
-                $accessToken = $oAuth2Client->getLongLivedAccessToken($accessToken);
-            } catch (Facebook\Exceptions\FacebookSDKException $e) {
-                throw new FacebookException();
-            }
-        }
-        try {
-            $fb = resolve('Facebook\SDK');
-            $response = $fb->get('/me?fields=id,name,email,picture', $accessToken);
+            $response = $this->fb->get('/me?fields=id,name,email,picture', $accessToken);
             $me = $response->getGraphUser();
         } catch (Facebook\Exceptions\FacebookSDKException $e) {
             throw new FacebookException();
@@ -114,31 +87,21 @@ class FacebookController extends Controller
     public function logout(Request $request)
     {
         $user = Auth::user();
-        $this->deactivateUser($user);
+        $user->deactivate();
         Auth::logout();
         return Redirect::back();
     }
 
     /**
      * @param Request $request
+     * @return Response
      */
     public function deAuthCallback(Request $request)
     {
         $data = $this->parse_signed_request($request->input('signed_request'));
         $facebookId = $data['user_id'];
         $user = User::where('fb_id', '=', $facebookId)->first();
-        $this->deactivateUser($user);
+        $user->deactivate();
         return new Response();
-    }
-
-    /**
-     * @param User $user
-     * @return bool
-     */
-    private function deactivateUser(User $user)
-    {
-        $user->fb_token = '';
-        $user->is_active = false;
-        return $user->save();
     }
 }
