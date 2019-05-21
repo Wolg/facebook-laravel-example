@@ -72,7 +72,7 @@
             <div class="top-right links">
                 @auth
                     <img src="{{ Auth::user()->picture }}"/>
-                    <a href="{{ $loginUrl }}">Logout</a>
+                    <a href="/auth/facebook/logout">Logout</a>
                 @endauth
                 @guest
                     <a href="{{ $loginUrl }}">Login via Facebook</a>
