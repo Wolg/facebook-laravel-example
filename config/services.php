@@ -44,4 +44,9 @@ return [
         ],
     ],
 
+    'facebook' => [
+        'id' => env('FACEBOOK_ID'),
+        'secret' => env('FACEBOOK_SECRET'),
+    ]
+
 ];

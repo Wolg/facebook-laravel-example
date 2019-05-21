@@ -13,7 +13,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $fb = new \Facebook\Facebook([
+            'app_id' => config('services.facebook.id'),
+            'app_secret' => config('services.facebook.secret'),
+            'default_graph_version' => 'v3.3'
+        ]);
+        $this->app->instance('Facebook\SDK', $fb);
     }
 
     /**
