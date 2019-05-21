@@ -13,3 +13,5 @@
 
 Route::get('/', 'HomeController@index');
 Route::get('/auth/facebook/callback', 'Auth\FacebookController@callback');
+Route::get('/auth/facebook/logout', 'Auth\FacebookController@logout');
+Route::get('/auth/facebook/deauthcallback', 'Auth\FacebookController@deAuthCallback');
